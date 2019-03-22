@@ -1,3 +1,4 @@
+package Chat;
 //
 //  CertificateAuthorityPanel.java
 //
@@ -7,18 +8,19 @@
 //
 
 import java.awt.*;
-import java.awt.event.*;
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import javax.swing.*;
 
 public class CertificateAuthorityLoginPanel extends JPanel {
 
     JPasswordField _privateKeyPassField;
-  //  JPasswordField _permissionsFilePassField;
     JTextField _portField;
     JTextField _keystoreFileNameField;
-  //  JTextField _permissionsFileNameField;
     JLabel _errorLabel;
-    JButton _startupButton;
     CertificateAuthority _ca;
 
     public CertificateAuthorityLoginPanel(CertificateAuthority ca) {
@@ -27,160 +29,139 @@ public class CertificateAuthorityLoginPanel extends JPanel {
         try {
             componentInit();
         } catch (Exception e) {
-            System.out.println("CertificateAuthorityPanel error: " + e.getMessage());
+            System.out.println( "CertificateAuthorityPanel error: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    void componentInit() throws Exception {
+    void componentInit() {
         GridBagLayout gridBag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
-        JLabel label;
 
-        setLayout(gridBag);
+        setLayout( gridBag );
 
-        addLabel(gridBag, "Certificate Server Startup Panel", SwingConstants.CENTER,
-                1, 0, 2, 1);
-        addLabel(gridBag, "KeyStore File Name: ", SwingConstants.LEFT, 1, 1, 1, 1);
-        addLabel(gridBag, "KeyStore (Private Key) Password: ", SwingConstants.LEFT, 1, 2, 1, 1);
-  //      addLabel(gridBag, "Permission File Name: ", SwingConstants.LEFT, 1, 3, 1, 1);
-  //      addLabel(gridBag, "Permission File Password: ", SwingConstants.LEFT, 1, 4, 1, 1);
-        addLabel(gridBag, "Port Number: ", SwingConstants.LEFT, 1, 5, 1, 1);
+        addLabel( gridBag, "Certificate Server Startup Panel", SwingConstants.CENTER, 0, 2 );
+        addLabel( gridBag, "KeyStore File Name: ", SwingConstants.LEFT, 1, 1 );
+        addLabel( gridBag, "KeyStore (Private Key) Password: ", SwingConstants.LEFT, 2, 1 );
+        addLabel( gridBag, "Port Number: ", SwingConstants.LEFT, 5, 1 );
 
 
         _keystoreFileNameField = new JTextField();
-        addField(gridBag, _keystoreFileNameField, 2, 1, 1, 1);
+        addField( gridBag, _keystoreFileNameField, 1 );
+        _keystoreFileNameField.setText( "keyStore_CA" );
 
         _privateKeyPassField = new JPasswordField();
-        _privateKeyPassField.setEchoChar('*');
-        addField(gridBag, _privateKeyPassField, 2, 2, 1, 1);
-
-  //      _permissionsFileNameField = new JTextField();
-  //      addField(gridBag, _permissionsFileNameField, 2, 3, 1, 1);
-
-  //      _permissionsFilePassField = new JPasswordField();
-  //      _permissionsFilePassField.setEchoChar('*');
-  //      addField(gridBag, _permissionsFilePassField, 2, 4, 1, 1);
+        _privateKeyPassField.setEchoChar( '*' );
+        addField( gridBag, _privateKeyPassField, 2 );
+        _privateKeyPassField.setText( "samilyunus" );
 
         _portField = new JTextField();
-        addField(gridBag, _portField, 2, 5, 1, 1);
+        addField( gridBag, _portField, 5 );
+        _portField.setText( "6666" );
 
-        _errorLabel = addLabel(gridBag, " ", SwingConstants.CENTER,
-                1, 6, 2, 1);
+        _errorLabel = addLabel( gridBag, " ", SwingConstants.CENTER, 6, 2 );
 
-        // just for testing purposs
-        _errorLabel.setForeground(Color.red);
+        _errorLabel.setForeground( Color.red );
 
-        _startupButton = new JButton("Startup");
+        JButton _startupButton = new JButton( "Startup" );
         c.gridx = 1;
         c.gridy = 8;
         c.gridwidth = 2;
-        gridBag.setConstraints(_startupButton, c);
-        add(_startupButton);
+        gridBag.setConstraints( _startupButton, c );
+        add( _startupButton );
 
-        _startupButton.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
+        _startupButton.addActionListener( e -> {
+            try {
                 startup();
+            } catch (UnrecoverableKeyException | NoSuchAlgorithmException | CertificateException | KeyStoreException | IOException e1) {
+                e1.printStackTrace();
             }
-        });
+        } );
     }
 
-    JLabel addLabel(GridBagLayout gridBag, String labelStr, int align,
-            int x, int y, int width, int height) {
+    private JLabel addLabel(GridBagLayout gridBag, String labelStr, int align,
+                            int y, int width) {
         GridBagConstraints c = new GridBagConstraints();
-        JLabel label = new JLabel(labelStr);
+        JLabel label = new JLabel( labelStr );
         if (align == SwingConstants.LEFT) {
             c.anchor = GridBagConstraints.WEST;
         } else {
-            c.insets = new Insets(10, 0, 10, 0);
+            c.insets = new Insets( 10, 0, 10, 0 );
         }
-        c.gridx = x;
+        c.gridx = 1;
         c.gridy = y;
         c.gridwidth = width;
-        c.gridheight = height;
-        gridBag.setConstraints(label, c);
-        add(label);
+        c.gridheight = 1;
+        gridBag.setConstraints( label, c );
+        add( label );
 
         return label;
     }
 
-    void addField(GridBagLayout gridBag, JTextField field, int x, int y,
-            int width, int height) {
+    private void addField(GridBagLayout gridBag, JTextField field, int y) {
         GridBagConstraints c = new GridBagConstraints();
-        field.setPreferredSize(new Dimension(96,
-                field.getMinimumSize().height));
-        c.gridx = x;
+        field.setPreferredSize( new Dimension( 156,
+                field.getMinimumSize().height ) );
+        c.gridx = 2;
         c.gridy = y;
-        c.gridwidth = width;
-        c.gridheight = height;
-        gridBag.setConstraints(field, c);
-        add(field);
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        gridBag.setConstraints( field, c );
+        add( field );
     }
 
-    private void startup() {
-        //System.out.println("Called startup");
+    private void startup() throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+
+        System.out.println( "Called startup." );
 
         int _caPort;
 
         String _keystoreFileName = _keystoreFileNameField.getText();
-//        String _permissionsFileName = _permissionsFileNameField.getText();
         char[] _privateKeyPass = _privateKeyPassField.getPassword();
-     //   char[] _permissionsFilePass = _permissionsFilePassField.getPassword();
 
         if (_privateKeyPass.length == 0
-                /*|| _permissionsFilePass.length == 0*/
-                || _portField.getText().equals("")
-                || _keystoreFileName.equals("")
-                /*|| _permissionsFileName.equals("")*/) {
+                || _portField.getText().equals( "" )
+                || _keystoreFileName.equals( "" )
+                ) {
 
-            _errorLabel.setText("Missing required field.");
+            _errorLabel.setText( "Missing required field." );
 
             return;
 
         } else {
 
-            _errorLabel.setText(" ");
+            _errorLabel.setText( " " );
 
         }
 
         try {
 
-            _caPort = Integer.parseInt(_portField.getText());
+            _caPort = Integer.parseInt( _portField.getText() );
 
         } catch (NumberFormatException nfExp) {
 
-            _errorLabel.setText("Port field is not numeric.");
+            _errorLabel.setText( "Port field is not numeric." );
 
             return;
         }
 
-        //System.out.println("Certificate Authority is starting up ...");
+        System.out.println( "Certificate Authority is starting up ..." );
 
-        switch (_ca.startup(_keystoreFileName,
+        switch (_ca.startup( _keystoreFileName,
                 _privateKeyPass,
-               /* _permissionsFileName,
-                _permissionsFilePass,*/
-                _caPort)) {
+                _caPort )) {
 
             case CertificateAuthority.SUCCESS:
-                //  Nothing happens, this panel is now hidden
-                _errorLabel.setText(" ");
+                _errorLabel.setText( " " );
                 break;
             case CertificateAuthority.KEYSTORE_FILE_NOT_FOUND:
-                _errorLabel.setText("KeyStore file not found!");
+                _errorLabel.setText( "KeyStore file not found!" );
                 break;
-    /*        case CertificateAuthority.PERMISSIONS_FILE_NOT_FOUND:
-                _errorLabel.setText("Permissions file not found!");
-                break;
-            case CertificateAuthority.PERMISSIONS_FILE_TAMPERED:
-                _errorLabel.setText("Somebody messed up ther perms file!");
-                break;
-    */        case CertificateAuthority.ERROR:
-                _errorLabel.setText("Unknown Error!");
+            case CertificateAuthority.ERROR:
+                _errorLabel.setText( "Unknown Error!" );
                 break;
         }
 
-        //System.out.println("Certificate Authority startup complete");
+        System.out.println( "Certificate Authority startup complete." );
     }
 }

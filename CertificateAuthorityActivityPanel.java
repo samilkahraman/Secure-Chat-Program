@@ -57,7 +57,7 @@ public class CertificateAuthorityActivityPanel extends JPanel {
     }
 
     JLabel addLabel(GridBagLayout gridBag, String labelStr, int align,
-            int x, int y, int width, int height) {
+                    int x, int y, int width, int height) {
         GridBagConstraints c = new GridBagConstraints();
         JLabel label = new JLabel(labelStr);
         if (align == SwingConstants.LEFT) {
@@ -75,7 +75,7 @@ public class CertificateAuthorityActivityPanel extends JPanel {
     }
 
     JTextArea addArea(GridBagLayout gridBag, Dimension prefSize,
-            int x, int y) {
+                      int x, int y) {
         JScrollPane scroller;
         JTextArea area = new JTextArea();
         GridBagConstraints c = new GridBagConstraints();
