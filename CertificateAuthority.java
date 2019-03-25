@@ -4,7 +4,7 @@ package Chat;
 //  CertificateAuthority.java
 //
 //  Written by : Priyank Patel <pkpatel@cs.stanford.edu>
-//
+//  Editted by : Yunus Can Basesme <ybasesme@etu.edu.tr> & Mehmet Samil Kahraman<msamilkahraman.etu.edu.tr>
 
 //  AWT/Swing
 
@@ -23,21 +23,22 @@ public class CertificateAuthority {
     public static final int KEYSTORE_FILE_NOT_FOUND = 1;
     public static final int ERROR = 4;
 
-    private CertificateAuthorityLoginPanel _panel;
-    private CertificateAuthorityActivityPanel _activityPanel;
-    private CardLayout _layout;
-    private JFrame _appFrame;
+    // GUI PART
+    CertificateAuthorityLoginPanel _panel;
+    CertificateAuthorityActivityPanel _activityPanel;
+    CardLayout _layout;
+    JFrame _appFrame;
 
-    private int portNumber;
-
+    //  Port number to listen on
+    private int _portNum;
+    // The filename of the keystore
     String keystoreFileName;
     char[] privateKeyPassword;
     KeyStore keyStore;
+    //key pair(public, private)
     KeyPair keyPair;
 
-
     private CertificateAuthority() {
-
         _panel = null;
         _activityPanel = null;
         _layout = null;
@@ -49,24 +50,21 @@ public class CertificateAuthority {
             System.out.println( "CA error: " + e.getMessage() );
             e.printStackTrace();
         }
-
         _layout.show( _appFrame.getContentPane(), "CAPanel" );
-
     }
 
     private void initialize() {
-
-        _appFrame = new JFrame( "Certificate Authority" );
+        _appFrame = new JFrame("Certificate Authority");
         _layout = new CardLayout();
 
-        _appFrame.getContentPane().setLayout( _layout );
-        _panel = new CertificateAuthorityLoginPanel( this );
-        _appFrame.getContentPane().add( _panel, "CAPanel" );
+        _appFrame.getContentPane().setLayout(_layout);
+        _panel = new CertificateAuthorityLoginPanel(this);
+        _appFrame.getContentPane().add(_panel, "CAPanel");
 
-        _activityPanel = new CertificateAuthorityActivityPanel( this );
-        _appFrame.getContentPane().add( _activityPanel, "ActivityPanel" );
+        _activityPanel = new CertificateAuthorityActivityPanel(this);
+        _appFrame.getContentPane().add(_activityPanel, "ActivityPanel");
 
-        _appFrame.addWindowListener( new WindowAdapter() {
+        _appFrame.addWindowListener(new WindowAdapter() {
 
             public void windowClosing(WindowEvent e) {
                 quit();
@@ -76,52 +74,49 @@ public class CertificateAuthority {
 
     private void run() {
         _appFrame.pack();
-        _appFrame.setVisible( true );
+        _appFrame.setVisible(true);
     }
 
     public void quit() {
-
         try {
-            System.out.println( "[INFO]: Quit called." );
+            System.out.println("quit called.");
         } catch (Exception err) {
-            System.out.println( "[ERROR]: CertificateAuthority error: " + err.getMessage() );
+            System.out.println("CertificateAuthority error: " + err.getMessage());
             err.printStackTrace();
         }
-
         System.exit( 0 );
     }
 
     public int startup(String _ksFileName,
                        char[] _privateKeyPass,
-                       int _caPort) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException, UnrecoverableKeyException {
+                       int _caPort) throws IOException, KeyStoreException, CertificateException,
+            NoSuchAlgorithmException, UnrecoverableKeyException {
 
-
-        portNumber = _caPort;
-
+        //  Port number to listen on
+        _portNum = _caPort;
         keystoreFileName = _ksFileName;
         privateKeyPassword = _privateKeyPass;
 
-        // [PROCESS -1-]: Loading CAs keystore
-        FileInputStream keyStoreStream = new FileInputStream( "/home/seray/ETU/bil448project/src/Chat/keystores/KeyStoreCA");
-        keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
-        keyStore.load( keyStoreStream, privateKeyPassword );
+        // Load CAs keystore
+        FileInputStream keyStoreStream = new FileInputStream( "C:\\Users\\Şamil\\Documents\\NetBeansProjects\\JavaApplication3\\src\\Chat\\keyStore_CA");
+        keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(keyStoreStream, privateKeyPassword);
 
-        // [-1]: Get CAs certificate and keypair from CAs keystore
-        PrivateKey privateKey = (PrivateKey) keyStore.getKey( "ca", privateKeyPassword );
-        Certificate certificate = keyStore.getCertificate( "ca" );
-        keyPair = new KeyPair( certificate.getPublicKey(), privateKey );
-
+        // From keyStore_CA, get CAs certificate and its keypair contains public and private key
+        PrivateKey privateKey = (PrivateKey) keyStore.getKey("ca", privateKeyPassword);
+        // We get certificate here
+        Certificate certificate = keyStore.getCertificate("ca");
+        // We get key pair here
+        keyPair = new KeyPair(certificate.getPublicKey(), privateKey);
         _layout.show( _appFrame.getContentPane(), "ActivityPanel" );
-
-        CertificateAuthorityThread _thread = new CertificateAuthorityThread( this );
+        CertificateAuthorityThread _thread = new CertificateAuthorityThread(this);
         _thread.start();
         return CertificateAuthority.SUCCESS;
-
     }
 
-    public int getPortNumber() {
+    public int get_portNum() {
 
-        return portNumber;
+        return _portNum;
     }
 
     public JTextArea getOutputArea() {
@@ -129,10 +124,17 @@ public class CertificateAuthority {
         return _activityPanel.getOutputArea();
     }
 
-
+    //  main
+    //
+    //  Construct the CA panel, read in the passwords and give the
+    //  control back
     public static void main(String[] args) {
 
         CertificateAuthority ca = new CertificateAuthority();
         ca.run();
+    }
+
+    int getPortNumber() {
+        return _portNum;
     }
 }

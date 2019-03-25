@@ -86,11 +86,11 @@ class ChatLoginPanel extends JPanel {
         _errorLabel = addLabel( gridBag, " ", SwingConstants.CENTER,
                 10, 2 );
 
-        _loginNameField.setText( "seraybeser" );
+        _loginNameField.setText( "samilyunus" );
         _roomNameField.setText( "roomA" );
         _roomTypeField.setText( "public" );
-        _keyStoreNameField.setText( "keystores/KeyStoreClient" );
-        _keyStorePasswordField.setText( "123456" );
+        _keyStoreNameField.setText( "keyStore_Client" );
+        _keyStorePasswordField.setText( "samilyunus" );
         _caHostField.setText( "localhost" );
         _caPortField.setText( "6666" );
         _serverHostField.setText( "localhost" );

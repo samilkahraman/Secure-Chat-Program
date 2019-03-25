@@ -4,8 +4,6 @@ package Chat;
 //
 //  Modified by : Priyank Patel <pkpatel@cs.stanford.edu>
 //                added the policies for the chat rooms A and B
-//  Modified by :Murat Ak, Dec 2011
-//                  Changed to java.security.cert
 
 import sun.security.x509.*;
 

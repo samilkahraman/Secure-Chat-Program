@@ -49,16 +49,16 @@ public class ChatServer {
             hostName = inetAddress.getHostName();
 
             // Getting CAs public key from Servers keystore
-            String serverKeyStoreFileName = "keystores/KeyStoreServer";
-            FileInputStream inputStream = new FileInputStream("/home/seray/ETU/bil448project/src/Chat/keystores/KeyStoreServer" );
+            String serverKeyStoreFileName = "keystores";
+            FileInputStream inputStream = new FileInputStream("C:\\Users\\Şamil\\Documents\\NetBeansProjects\\JavaApplication3\\src\\Chat\\keyStore_Server" );
             KeyStore serverKeyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
-            char[] serverKeystorePassword = "123456".toCharArray();
+            char[] serverKeystorePassword = "samilyunus".toCharArray();
             serverKeyStore.load( inputStream, serverKeystorePassword );
             CAPublicKey = serverKeyStore.getCertificate( "ca" ).getPublicKey();
 
             // Getting Servers certificate and RSA Private key from Servers keystore
             certificate = serverKeyStore.getCertificate( "server" );
-            char[] SERVER_KEY_PASSWORD = "123456".toCharArray();
+            char[] SERVER_KEY_PASSWORD = "samilyunus".toCharArray();
             RSAPrivateKey = (PrivateKey) serverKeyStore.getKey( "server", SERVER_KEY_PASSWORD );
 
             // Generating room key
