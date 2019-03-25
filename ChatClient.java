@@ -110,7 +110,7 @@ public class ChatClient {
 
 
         } catch (Exception err) {
-            System.out.println( "ChatClient error: " + err.getMessage() );
+            System.out.println( "[ERROR]: ChatClient error: " + err.getMessage() );
             err.printStackTrace();
         }
         System.exit( 0 );
@@ -129,51 +129,51 @@ public class ChatClient {
             loginName = userName;
 
 
-            System.out.println( "\n\nConnecting to CA" );
+            System.out.println( "\n\n[PROCESS]: Connecting to CA ..." );
 
-            // User's keystore is being brought
-            System.out.println("User's keystore is being brought");
-            FileInputStream inputStream = new FileInputStream( "keyStore_Client" );
+            // [PROCESS -1-] : Loading user's keystore...
+            System.out.println( "[PROCESS -1-] : Loading user's keystore..." );
+            FileInputStream inputStream = new FileInputStream( "/home/seray/ETU/bil448project/src/Chat/keystores/KeyStoreClient" );
             KeyStore userKeyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
             userKeyStore.load( inputStream, keyStorePassword );
             PublicKey CAPublicKey = userKeyStore.getCertificate( "ca" ).getPublicKey();
 
-            // Check whether there exist a certificate with this username or not
-            System.out.println( "Checking whether there exist a certificate with this username or not" );
+            // [PROCESS -2-] Check users certificate with username
+            System.out.println( "[PROCESS -2-] Checking user's certificate with username..." );
             PrivateKey RSAPrivateKey;
             Certificate userCertificate;
             if (!userKeyStore.isCertificateEntry( loginName )) {
 
-                // Check users certificate with username, if does not exists
-                System.out.println( "User's certificate does not exists." );
+                // [PROCESS -2-] Check users certificate with username, if does not exists
+                System.out.println( "[INFO] User's certificate does not exists." );
 
-                // Receive user's public key to make new registration request
+                // [PROCESS -3 ]: Receive users public key
                 RSAPrivateKey = (PrivateKey) userKeyStore.getKey( "client", keyStorePassword );
                 userCertificate = userKeyStore.getCertificate( "client" );
                 PublicKey RSAPublicKey = userCertificate.getPublicKey();
-                System.out.println( "User's public key has received" );
+                System.out.println( "[PROCESS -3 ]: Received user's public key." );
 
-                // Connect to CA for new registration request
+                // [PROCESS -4-]: Connect to CA for registration request
                 Socket ca_socket = new Socket( caHost, caPort );
                 OutputStream outStream = ca_socket.getOutputStream();
                 InputStream inStream = ca_socket.getInputStream();
                 out = new ObjectOutputStream( outStream );
                 in = new ObjectInputStream( inStream );
 
-                System.out.println( "Connected to CA for registration request." );
+                System.out.println( "[PROCESS -4-]: Connected to CA for registration request." );
 
-                // Send CA, username and RSA public key of the user
+                // [ -4 ]: send CA username and RSA public key
                 out.writeObject( new RegistrationRequest( loginName, RSAPublicKey ) );
-                System.out.println( "\tsent CA username and RSA public key." );
+                System.out.println( "\t[ -4 ]: sent CA username and RSA public key." );
 
                 try {
-                    // receive certificate from CA
+                    // [ -4 ]: receive certificate from CA
                     userCertificate = (X509Certificate) in.readObject();
-                    System.out.println( "\treceived certificate from CA." );
+                    System.out.println( "\t[ -4 ]: received certificate from CA." );
 
-                    // verify CA
+                    // [ -4 ]: verify CA
                     userCertificate.verify( CAPublicKey );
-                    System.out.println( "\tverified CA." );
+                    System.out.println( "\t[ -4 ]: verified CA." );
 
 
                 } catch (ClassCastException caste) {
@@ -186,25 +186,25 @@ public class ChatClient {
                 in.close();
 
 
-                // Save the certificate in user's keystore
+                // [PROCESS -5-]: Save the certificate in its keystore
                 userKeyStore.setCertificateEntry( loginName, userCertificate );
-                FileOutputStream keyStoreStream = new FileOutputStream("keyStore_Client" );
+                FileOutputStream keyStoreStream = new FileOutputStream("/home/seray/ETU/bil448project/src/Chat/keystores/KeyStoreClient" );
                 userKeyStore.store( keyStoreStream, keyStorePassword );
-                System.out.println( "Saved the certificate in user's keystore." );
+                System.out.println( "[PROCESS -5-]: Saved the certificate in user's keystore." );
 
-            } else { //if user has registred before and has a certificate
+            } else {
 
-                System.out.println( "User's certificate exists." );
-                // Check users certificate with username, if  exists
-                // Received RSA private key and certificate from keystore
+                System.out.println( "[INFO] User's certificate exists." );
+                // [PROCESS -2-] Check users certificate with username, if  exists
+                // [PROCESS -3-]: Received RSA private key and certificate from keystore
                 RSAPrivateKey = (PrivateKey) userKeyStore.getKey( "client", keyStorePassword );
                 userCertificate = userKeyStore.getCertificate( loginName );
-                System.out.println( "Received user's RSA private key and certificate from keystore." );
+                System.out.println( "[PROCESS -3-]: Received user's RSA private key and certificate from keystore." );
 
             }
 
-            // Connecting to Server ...
-            System.out.println( "\n\nConnecting to Server ..." );
+            // [PROCESS]: Connecting to Server ...
+            System.out.println( "\n\n[PROCESS]: Connecting to Server ..." );
 
             _socket = new Socket( serverHost, serverPort );
             OutputStream outStream = _socket.getOutputStream();
@@ -212,29 +212,30 @@ public class ChatClient {
             out = new ObjectOutputStream( outStream );
             in = new ObjectInputStream( inStream );
 
-            System.out.println( "Connected to server." );
+            System.out.println( "[INFO]: Connected to server." );
 
-            // Receiving server's packet
-            System.out.println( " Receiving server's packet..." );
+            // [PROCESS -1-]: Receiving server's packet
+            System.out.println( "[PROCESS -1-]: Receiving server's packet..." );
             ServerPacket serverPacket = (ServerPacket) in.readObject();
 
+            //-DHPublicKeySpec DHServerPublicKeyPart = serverPacket.getDHServerPart();
             DHPublicKey DHServerPublicKey = serverPacket.getDHServerKey();
 
-            // Getting server's certificate
-            System.out.println( "\tGetting server's certificate..." );
+            // [ -1- ]: Getting server's certificate
+            System.out.println( "\t[-1-]: Getting server's certificate..." );
             Certificate serverCert = serverPacket.getServerCertificate();
 
-            System.out.println( "Verifying server's certificate" );
+            System.out.println( "[PROCESS -2-]: Verifying server's certificate" );
             serverCert.verify( CAPublicKey );
             if (!serverPacket.verify()) {
                 return BAD_HOST;
             }
 
-            // Server key exchange
-            System.out.println( " Server key exchange completed." );
+            // [INFO]: Server key exchange
+            System.out.println( "[INFO]: Server key exchange completed." );
 
-            // Generate DH key part
-            System.out.println( " Generating DH key part..." );
+            // [PROCESS -3-]: Generate DH key part
+            System.out.println( "[PROCESS -3-]: Generating DH key part..." );
             KeyPairGenerator keyPairGenerator;
             keyPairGenerator = KeyPairGenerator.getInstance( "DiffieHellman" );
             // parameters
@@ -244,27 +245,27 @@ public class ChatClient {
             keyPairGenerator.initialize( dhParameterSpec );
             KeyPair generateKeyPair = keyPairGenerator.generateKeyPair();
 
-            // Create and send client packet
-            System.out.println( "Sending client packet..." );
+            // [PROCESS -4-]: Create and send client packet
+            System.out.println( "[PROCESS -4-]: Sending client packet..." );
             Certificate serverCertificate = serverPacket.getServerCertificate();
             ClientPacket clientPacket = new ClientPacket( userCertificate, serverCertificate, generateKeyPair.getPublic(), RSAPrivateKey, serverPacket );
             out.writeObject( clientPacket );
 
-            // Sent client packet.
-            System.out.println( "Sent client packet." );
+            // [INFO]: Sent client packet.
+            System.out.println( "[INFO]: Sent client packet." );
 
-            // Calculating shared secret...
-            System.out.println( "Calculating shared secret..." );
+            // [PROCESS -5-]: Calculating shared secret...
+            System.out.println( "[PROCESS -5-]: Calculating shared secret..." );
             KeyAgreement keyAgreement = KeyAgreement.getInstance( "DH" );
             keyAgreement.init( generateKeyPair.getPrivate() );
             keyAgreement.doPhase( DHServerPublicKey, true );
             SecretKey secretKey = keyAgreement.generateSecret( "AES" );
 
-            // Key exchange completed.
-            System.out.println( "Key exchange completed." );
+            // [INFO]: Key exchange completed.
+            System.out.println( "[INFO]: Key exchange completed." );
 
-            // Initializing symmetric ciphers...
-            System.out.println( "\nInitializing symmetric ciphers..." );
+            // [PROCESS]:  Initializing symmetric ciphers...
+            System.out.println( "\n[PROCESS -1-]:  Initializing symmetric ciphers..." );
             Cipher encryptCipher = Cipher.getInstance( "AES/CBC/PKCS5Padding" );
             Cipher decryptCipher = Cipher.getInstance( "AES/CBC/PKCS5Padding" );
             byte[] ivParameterBytes = "guaicnjqwvgfashsh".getBytes();
@@ -272,25 +273,26 @@ public class ChatClient {
             encryptCipher.init( Cipher.ENCRYPT_MODE, secretKey, ivParameterSpec );
             decryptCipher.init( Cipher.DECRYPT_MODE, secretKey, ivParameterSpec );
 
-            // Sending join room request...
-            System.out.println( "Sending join room request..." );
+            // [PROCESS]:  Sending join room request...
+            System.out.println( "[PROCESS -2-]:  Sending join room request..." );
             out.writeObject( new SealedObject( roomName, encryptCipher ) );
             out.writeObject( new SealedObject( roomType, encryptCipher ) );
 
-            // Join room request sent.
-            System.out.println( "Join room request sent." );
+            // [INFO]: Join room request sent.
+            System.out.println( "[INFO]: Join room request sent." );
 
-            // Receiving joining room requests respond
-            System.out.println( " Receiving joining room requests respond..." );
+            // [PROCESS -1-]:  Receiving joining room requests respond
+            System.out.println( "[PROCESS -3-]:  Receiving joining room requests respond..." );
             SealedObject roomRespond = (SealedObject) in.readObject();
             roomKey = (SecretKey) roomRespond.getObject( decryptCipher );
 
             if (roomKey == null) {
-                System.out.println( "Joining room failed." );
+                System.out.println( "[INFO]: Joining room failed." );
+                System.out.println( "[EXIT]" );
                 return CONNECTION_REFUSED;
             }
 
-            System.out.println( "Joined room." );
+            System.out.println( "[INFO]: Joined room." );
 
             _cardLayout.show( _appFrame.getContentPane(), "ChatRoom" );
 
@@ -300,12 +302,12 @@ public class ChatClient {
 
         } catch (UnknownHostException e) {
 
-            System.err.println( "Don't know about the serverHost: " + serverHost );
+            System.err.println( "[ERROR]: Don't know about the serverHost: " + serverHost );
 
         } catch (IOException e) {
 
-            System.err.println( "Couldn't get I/O for the connection to the serverHost: " + serverHost );
-            System.out.println( "ChatClient error: " + e.getMessage() );
+            System.err.println( "[ERROR]: Couldn't get I/O for the connection to the serverHost: " + serverHost );
+            System.out.println( "[ERROR]: ChatClient error: " + e.getMessage() );
             e.printStackTrace();
 
 
@@ -315,7 +317,7 @@ public class ChatClient {
 
         } catch (Exception e) {
 
-            System.out.println( "ChatClient err: " + e.getMessage() );
+            System.out.println( "[ERROR]: ChatClient err: " + e.getMessage() );
             e.printStackTrace();
         }
 
@@ -330,7 +332,7 @@ public class ChatClient {
             Message message = new Message( msg, roomKey );
             out.writeObject( message );
         } catch (Exception e) {
-            System.out.println( "ChatClient err: " + e.getMessage() );
+            System.out.println( "[ERROR]: ChatClient err: " + e.getMessage() );
             e.printStackTrace();
         }
     }
@@ -343,5 +345,6 @@ public class ChatClient {
 
         return _chatRoomPanel.getOutputArea();
     }
+
 
 }

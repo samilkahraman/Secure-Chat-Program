@@ -1,67 +1,60 @@
-/**
- *  Created 2/16/2003 by Ting Zhang 
- *  Part of implementation of the ChatClient to receive
- *  all the messages posted to the chat room.
+package Chat;
+/*
+ * Created 2/16/2003 by Ting Zhang
+ * Part of implementation of the ChatClient to receive
+ * all the messages posted to the chat room.
  */
 
-// socket
+
 import java.net.*;
 import java.io.*;
-
-//  Swing
 import javax.swing.JTextArea;
 
-//  Crypto
-import java.security.*;
-import java.security.spec.*;
-import java.security.interfaces.*;
-import javax.crypto.*;
-import javax.crypto.spec.*;
-import javax.crypto.interfaces.*;
 
 public class ChatClientThread extends Thread {
 
-    private ChatClient _client;
+    private ChatClient chatClient;
     private JTextArea _outputArea;
-    private Socket _socket = null;
+    private Socket _socket;
 
-    public ChatClientThread(ChatClient client) {
+    ChatClientThread(ChatClient client) {
 
-        super("ChatClientThread");
-        _client = client;
+        super( "ChatClientThread" );
+        chatClient = client;
         _socket = client.getSocket();
         _outputArea = client.getOutputArea();
     }
 
     public void run() {
+        String msg;
+        Message message;
 
-        try {
+        while (chatClient.exists) try {
 
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(
-                    _socket.getInputStream()));
-
-            String msg;
-
-            while ((msg = in.readLine()) != null) {
-
-                consumeMessage(msg + " \n");
+            message = (Message) chatClient.in.readObject();
+            if ((msg = message.verifyAndGetMessage( chatClient.roomKey )) != null) {
+                consumeMessage( msg + " \n" );
             }
+        } catch (IOException | ClassNotFoundException e) {
+
+            System.out.println( "[INFO]: Client left room." );
+            //e.printStackTrace();
+        }
+        try {
 
             _socket.close();
 
         } catch (IOException e) {
 
+            System.out.println( "[ERROR]: ChatClientThread error: " + e.getMessage() );
             e.printStackTrace();
         }
-
     }
 
-    public void consumeMessage(String msg) {
-
+    private void consumeMessage(String msg) {
 
         if (msg != null) {
-            _outputArea.append(msg);
+            _outputArea.append( msg );
         }
 
     }

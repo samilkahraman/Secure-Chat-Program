@@ -1,61 +1,78 @@
+package Chat;
 //
 // ChatServer.java
 // Created by Ting on 2/18/2003
 // Modified : Priyank K. Patel <pkpatel@cs.stanford.edu>
 //
 
-// Java General
+import java.security.cert.Certificate;
 import java.util.*;
-import java.math.BigInteger;
-
-// socket
 import java.net.*;
 import java.io.*;
-
-// Crypto
 import java.security.*;
 import java.security.cert.*;
-import java.security.spec.*;
-import java.security.interfaces.*;
 import javax.crypto.*;
-import javax.crypto.spec.*;
-import javax.crypto.interfaces.*;
-import javax.security.auth.x500.*;
-//import sun.security.x509.*;
+
 
 public class ChatServer {
 
-    private Hashtable _clients;
-//      private Hashtable _clientsRoomA;
-//      private Hashtable _clientsRoomB;
-    private int _clientID = 0;
-    private int _port;
-    private String _hostName = null;
-    // Some hints: security related fields.
-    private String SERVER_KEYSTORE = "serverKeys";
-    private char[] SERVER_KEYSTORE_PASSWORD = "123456".toCharArray();
-    private char[] SERVER_KEY_PASSWORD = "123456".toCharArray();
-    private ServerSocket _serverSocket = null;
-    private SecureRandom secureRandom;
-    private KeyStore serverKeyStore;
-//    private KeyManagerFactory keyManagerFactory;
-//    private TrustManagerFactory trustManagerFactory;
-  
-    public ChatServer(int port) {
+
+    int CLIENT = 0;
+
+    private int port;
+    private String hostName = null;
+
+    private ServerSocket serverSocket = null;
+
+    PublicKey CAPublicKey;
+    PrivateKey RSAPrivateKey;
+    Certificate certificate;
+
+    Map<String, HashMap<Integer, ClientRecord>> clients;
+    KeyGenerator roomKeyGenerator;
+    Map<String, SecretKey> roomKeys;
+
+
+    private ChatServer(int port) {
 
         try {
 
-            _clients = new Hashtable();
-            _serverSocket = null;
-            _clientID = -1;
-            _port = port;
-            InetAddress serverAddr = InetAddress.getByName(null);
-            _hostName = serverAddr.getHostName();
+            this.port = port;
+            CLIENT = -1;
+
+            clients = new HashMap<>();
+            roomKeys = new HashMap<>();
+
+            serverSocket = null;
+
+            InetAddress inetAddress = InetAddress.getByName( null );
+            hostName = inetAddress.getHostName();
+
+            // Getting CAs public key from Servers keystore
+            String serverKeyStoreFileName = "keystores/KeyStoreServer";
+            FileInputStream inputStream = new FileInputStream("/home/seray/ETU/bil448project/src/Chat/keystores/KeyStoreServer" );
+            KeyStore serverKeyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
+            char[] serverKeystorePassword = "123456".toCharArray();
+            serverKeyStore.load( inputStream, serverKeystorePassword );
+            CAPublicKey = serverKeyStore.getCertificate( "ca" ).getPublicKey();
+
+            // Getting Servers certificate and RSA Private key from Servers keystore
+            certificate = serverKeyStore.getCertificate( "server" );
+            char[] SERVER_KEY_PASSWORD = "123456".toCharArray();
+            RSAPrivateKey = (PrivateKey) serverKeyStore.getKey( "server", SERVER_KEY_PASSWORD );
+
+            // Generating room key
+            roomKeyGenerator = KeyGenerator.getInstance( "AES" );
+            roomKeyGenerator.init( 128 );
+
 
         } catch (UnknownHostException e) {
 
-            _hostName = "0.0.0.0";
+            hostName = "0.0.0.0";
 
+        } catch (IOException | CertificateException | UnrecoverableKeyException
+                | NoSuchAlgorithmException | KeyStoreException e) {
+            e.printStackTrace();
         }
     }
 
@@ -63,62 +80,47 @@ public class ChatServer {
 
         try {
 
-            int port = Integer.parseInt("10500");
-            ChatServer server = new ChatServer(port);
+            int port = Integer.parseInt( "10500" );
+            ChatServer server = new ChatServer( port );
             server.run();
 
         } catch (NumberFormatException e) {
 
-            System.out.println("Useage: java ChatServer host portNum");
+            System.out.println( "[ERROR]: Usage: java ChatServer host portNum" );
             e.printStackTrace();
-            return;
 
         } catch (Exception e) {
 
-            System.out.println("ChatServer error: " + e.getMessage());
+            System.out.println( "[ERROR]: ChatServer error: " + e.getMessage() );
             e.printStackTrace();
         }
     }
 
-    /***
-     *
-     * Your methods for setting up secure connection
-     *
-     */
-    public void run() {
+
+    private void run() {
 
         try {
 
-            _serverSocket = new ServerSocket(_port);
-            System.out.println("ChatServer is running on "
-                    + _hostName + " port " + _port);
+            serverSocket = new ServerSocket( port );
+            System.out.println( "[INFO]: ChatServer is running on " + hostName + " port " + port );
 
             while (true) {
 
-                Socket socket = _serverSocket.accept();
-                ClientRecord clientRecord = new ClientRecord(socket);
-                _clients.put(new Integer(_clientID++), clientRecord);
-                ChatServerThread thread = new ChatServerThread(this, socket);
+                Socket socket = serverSocket.accept();
+                ChatServerThread thread = new ChatServerThread( this, socket );
                 thread.start();
             }
 
-            //_serverSocket.close();
 
         } catch (IOException e) {
 
-            System.err.println("Could not listen on port: " + _port);
-            System.exit(-1);
+            System.err.println( "[ERROR]: Could not listen on port: " + port );
 
         } catch (Exception e) {
 
+            System.out.println( "[ERROR]: ChatServer error: " + e.getMessage() );
             e.printStackTrace();
-            System.exit(1);
 
         }
-    }
-
-    public Hashtable getClientRecords() {
-
-        return _clients;
     }
 }

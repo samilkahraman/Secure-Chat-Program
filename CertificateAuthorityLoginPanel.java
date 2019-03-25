@@ -15,26 +15,26 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import javax.swing.*;
 
-public class CertificateAuthorityLoginPanel extends JPanel {
+class CertificateAuthorityLoginPanel extends JPanel {
 
-    JPasswordField _privateKeyPassField;
-    JTextField _portField;
-    JTextField _keystoreFileNameField;
-    JLabel _errorLabel;
-    CertificateAuthority _ca;
+    private JPasswordField _privateKeyPassField;
+    private JTextField _portField;
+    private JTextField _keystoreFileNameField;
+    private JLabel _errorLabel;
+    private CertificateAuthority _ca;
 
-    public CertificateAuthorityLoginPanel(CertificateAuthority ca) {
+    CertificateAuthorityLoginPanel(CertificateAuthority ca) {
         _ca = ca;
 
         try {
             componentInit();
         } catch (Exception e) {
-            System.out.println( "CertificateAuthorityPanel error: " + e.getMessage());
+            System.out.println( "[ERROR]: CertificateAuthorityPanel error: " + e.getMessage() );
             e.printStackTrace();
         }
     }
 
-    void componentInit() {
+    private void componentInit() {
         GridBagLayout gridBag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
 
@@ -48,12 +48,12 @@ public class CertificateAuthorityLoginPanel extends JPanel {
 
         _keystoreFileNameField = new JTextField();
         addField( gridBag, _keystoreFileNameField, 1 );
-        _keystoreFileNameField.setText( "keyStore_CA" );
+        _keystoreFileNameField.setText( "keystores/KeyStoreCA" );
 
         _privateKeyPassField = new JPasswordField();
         _privateKeyPassField.setEchoChar( '*' );
         addField( gridBag, _privateKeyPassField, 2 );
-        _privateKeyPassField.setText( "samilyunus" );
+        _privateKeyPassField.setText( "123456" );
 
         _portField = new JTextField();
         addField( gridBag, _portField, 5 );
@@ -112,7 +112,7 @@ public class CertificateAuthorityLoginPanel extends JPanel {
 
     private void startup() throws UnrecoverableKeyException, CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
 
-        System.out.println( "Called startup." );
+        System.out.println( "[INFO]: Called startup." );
 
         int _caPort;
 
@@ -145,7 +145,7 @@ public class CertificateAuthorityLoginPanel extends JPanel {
             return;
         }
 
-        System.out.println( "Certificate Authority is starting up ..." );
+        System.out.println( "[PROCESS]: Certificate Authority is starting up ..." );
 
         switch (_ca.startup( _keystoreFileName,
                 _privateKeyPass,
@@ -155,13 +155,13 @@ public class CertificateAuthorityLoginPanel extends JPanel {
                 _errorLabel.setText( " " );
                 break;
             case CertificateAuthority.KEYSTORE_FILE_NOT_FOUND:
-                _errorLabel.setText( "KeyStore file not found!" );
+                _errorLabel.setText( "[ERROR]: KeyStore file not found!" );
                 break;
             case CertificateAuthority.ERROR:
-                _errorLabel.setText( "Unknown Error!" );
+                _errorLabel.setText( "[ERROR]: Unknown Error!" );
                 break;
         }
 
-        System.out.println( "Certificate Authority startup complete." );
+        System.out.println( "[INFO]: Certificate Authority startup complete." );
     }
 }
