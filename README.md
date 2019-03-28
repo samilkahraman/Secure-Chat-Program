@@ -4,8 +4,8 @@ Yunus Can Başeşme 141101069
 Mehmet Şamil Kahraman 141101050
 
 # How to run the code
-1- Run CertificateAuthority.java then click Startup button
-2- Run ChatServer.java
+1- Run CertificateAuthority.java then click Startup button<br/>
+2- Run ChatServer.java<br/>
 3- Run ChatClient.java then enter a username and click Connect button
 
 # A list of all the usernames and passwords of the clients
