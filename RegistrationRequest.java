@@ -1,6 +1,3 @@
-
-package Chat;
-
 import java.io.Serializable;
 import java.security.PublicKey;
 

@@ -1,5 +1,3 @@
-
-package Chat;
 //
 // ChatServerThread.java
 // created 02/18/03 by Ting Zhang
@@ -22,6 +20,7 @@ public class ChatServerThread extends Thread {
 
     private Socket _socket;
     private ChatServer _server;
+    private static final int AES_KEY_SIZE = 128;
 
     ChatServerThread(ChatServer server, Socket socket) {
 
@@ -75,7 +74,11 @@ public class ChatServerThread extends Thread {
             KeyAgreement keyAgreement = KeyAgreement.getInstance( "DH" );
             keyAgreement.init( DHKeyPair.getPrivate() );
             keyAgreement.doPhase( DHClientPublicKey, true );
-            SecretKey sharedKey = keyAgreement.generateSecret( "AES" );
+            byte[] secret = keyAgreement.generateSecret();
+            MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+            byte[] bkey = Arrays.copyOf(
+                    sha256.digest(secret), AES_KEY_SIZE / Byte.SIZE);
+            SecretKey sharedKey = new SecretKeySpec(bkey, "AES");
 
             // [INFO]: Server key exchange
             System.out.println( "[INFO]: Client key exchange completed." );

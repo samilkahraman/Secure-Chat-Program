@@ -1,4 +1,3 @@
-package Chat;
 //
 //  CertificateAuthorityThread.java
 //
@@ -53,58 +52,47 @@ public class CertificateAuthorityThread extends Thread {
 
                 OutputStream outStream = socket.getOutputStream();
                 InputStream inStream = socket.getInputStream();
-                ObjectOutputStream out = new ObjectOutputStream(outStream);
-                ObjectInputStream in = new ObjectInputStream(inStream);
-                /*
-                * Got the connection, now do what is required
-                * First complete the handshake
-                * Determine who sent it
-                * verify the username and password hash
-                * issue a certificate signed with the private key
-                *
-                * */
+                ObjectOutputStream out = new ObjectOutputStream( outStream );
+                ObjectInputStream in = new ObjectInputStream( inStream );
 
-                // Receive registration request
+                // [PROCESS -1- ]:  Receiving registration request
                 RegistrationRequest requestPacket = (RegistrationRequest) in.readObject();
 
+                // [PROCESS -2- ]:  Check existing of registration request packet
                 if (requestPacket != null) {
 
-                    // Check whether the registration is done before or not with this username looking packet
-                    // existance
-                    outputArea.append( "\nRegistration request for user < " + requestPacket.username + ">" );
+                    // [PROCESS -2- ]:  Check existing of registration request packet, if request packet exists
+                    outputArea.append( "\n[REQUEST]:  Registration request for user < " + requestPacket.username + ">" );
 
-                    // Check registration request packet's certificate in CA's keystore
+                    // [PROCESS -3- ]:  Check registration request packet's certificate in CA's keystore
                     Certificate existingCertificate = CA.keyStore.getCertificate( requestPacket.username );
                     X509Certificate certificate = null;
 
-                    // If there is not a certificate for this user, generate a new certificate for the user's public
-                    // key and return it to the user and store the username-certificate pair in its keystore to
-                    // remember that the user was registered or not in forthcoming requests.
+                    // [PROCESS -4- ]:  If does not exists a certificate, generate a new certificate for that user
                     if (existingCertificate == null) {
-                        certificate = X509CertificateGenerator.generateCertificate( "CN=" + requestPacket.username +
-                                        ", O=zencilerTrust, C=TR",
+                        certificate = X509CertificateGenerator.generateCertificate( "CN=" + requestPacket.username + ", O=TOBB ETU, C=TR",
                                 CA.keyPair.getPrivate(), requestPacket.publicKey, 90, "SHA256withRSA" );
 
-                        //save the certificate in CA's keystore for remember that user
+                        // [ -4 ] save the certificate in CA's keystore for remember that user
                         CA.keyStore.setCertificateEntry( requestPacket.username, certificate );
-                        FileOutputStream keyStoreStream = new FileOutputStream("C:\\Users\\Şamil\\Documents\\NetBeansProjects\\JavaApplication3\\src\\Chat\\keyStore_CA" );
+                        FileOutputStream keyStoreStream = new FileOutputStream("/home/seray/ETU/bil448project/src/Chat/keystores/KeyStoreCA" );
                         CA.keyStore.store( keyStoreStream, CA.privateKeyPassword );
 
-                        outputArea.append( "\nRegistration completed." );
+                        outputArea.append( "\n[DONE]: Registration completed." );
                     }
 
-                    // send the certificate to the user
+                    // [ -4- ] send the certificate to the user
                     out.writeObject( certificate );
                 }
             } catch (Exception e) {
 
-                System.out.println( "\nConnection error: " + e.getMessage() );
+                System.out.println( "\n [ERROR]: Connection error: " + e.getMessage() );
                 e.printStackTrace();
             }
         } catch (Exception e)
 
         {
-            System.out.println( "CA thread error: " + e.getMessage() );
+            System.out.println( "[ERROR]: CA thread error: " + e.getMessage() );
             e.printStackTrace();
         }
 

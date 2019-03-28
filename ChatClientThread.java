@@ -1,4 +1,4 @@
-package Chat;
+
 /*
  * Created 2/16/2003 by Ting Zhang
  * Part of implementation of the ChatClient to receive
@@ -30,7 +30,6 @@ public class ChatClientThread extends Thread {
         Message message;
 
         while (chatClient.exists) try {
-
             message = (Message) chatClient.in.readObject();
             if ((msg = message.verifyAndGetMessage( chatClient.roomKey )) != null) {
                 consumeMessage( msg + " \n" );

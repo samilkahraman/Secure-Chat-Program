@@ -1,5 +1,3 @@
-package Chat;
-
 import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHPublicKeySpec;
 import java.io.IOException;

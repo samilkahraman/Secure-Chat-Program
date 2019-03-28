@@ -1,4 +1,3 @@
-package Chat;
 //  ChatRoomPanel.java
 //
 //  Last modified 1/30/2000 by Alan Frindell
@@ -51,7 +50,12 @@ public class ChatRoomPanel extends JPanel {
         } );
 
         JButton _quitButton = new JButton( "Leave Chat Room" );
-        _quitButton.addActionListener( e -> quit() );
+        _quitButton.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                quit();
+            }
+        });
         c.insets = new Insets( 4, 4, 4, 4 );
         c.weighty = 1.0;
         c.gridx = 2;

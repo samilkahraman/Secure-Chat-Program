@@ -1,6 +1,3 @@
-
-package Chat;
-
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import java.io.IOException;
@@ -34,14 +31,12 @@ public class Message implements Serializable {
 
     public String verifyAndGetMessage(SecretKey key) {
         try {
-
             Cipher cipher = Cipher.getInstance( "AES/CBC/PKCS5Padding" );
             byte[] ivBytes = "guaicnjqwvgfashsh".getBytes();
 
             // [PROCESS]: Decrypting message...
             cipher.init( Cipher.DECRYPT_MODE, key, new IvParameterSpec( ivBytes, 0, 16 ) );
             String sealedMessageObject = (String) this.sealedMessage.getObject( cipher );
-
 
             // [PROCESS]: Calculating MAC...
             Mac mac = Mac.getInstance( "HmacSHA256" );
