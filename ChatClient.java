@@ -300,8 +300,8 @@ public class ChatClient {
             SealedObject roomRespond = (SealedObject) in.readObject();
             System.out.println(roomRespond.getAlgorithm());
             //SealedObject roomRespond = RM;
-            roomKey = secretKey;
-            //roomKey = (SecretKey) roomRespond.getObject( decryptCipher );
+            //roomKey = secretKey;
+            roomKey = (SecretKey) roomRespond.getObject( decryptCipher );
 
 
 

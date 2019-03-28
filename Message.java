@@ -23,12 +23,16 @@ public class Message implements Serializable {
         this.sealedMessage = new SealedObject( message, cipher );
 
         // [PROCESS]: Calculating MAC...
+        //Creating MAC instance
         Mac mac = Mac.getInstance( "HmacSHA256" );
+        //initialized with secret key
         mac.init( key );
+        //calculating the MAC for single block of data
         byte[] macByte = message.getBytes( "UTF-8" );
         this.MAC = mac.doFinal( macByte );
     }
 
+    //get message, decrypt it, verify MAC
     public String verifyAndGetMessage(SecretKey key) {
         try {
             Cipher cipher = Cipher.getInstance( "AES/CBC/PKCS5Padding" );

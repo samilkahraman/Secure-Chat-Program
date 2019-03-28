@@ -75,7 +75,7 @@ public class CertificateAuthorityThread extends Thread {
 
                         // [ -4 ] save the certificate in CA's keystore for remember that user
                         CA.keyStore.setCertificateEntry( requestPacket.username, certificate );
-                        FileOutputStream keyStoreStream = new FileOutputStream("/home/seray/ETU/bil448project/src/Chat/keystores/KeyStoreCA" );
+                        FileOutputStream keyStoreStream = new FileOutputStream("C:\\\\Users\\\\Emir\\\\Desktop\\\\Secure-Chat-Room-Service-master\\\\ChatRoom-Service\\\\Chat\\\\keystores\\\\keyStoreCA" );
                         CA.keyStore.store( keyStoreStream, CA.privateKeyPassword );
 
                         outputArea.append( "\n[DONE]: Registration completed." );
