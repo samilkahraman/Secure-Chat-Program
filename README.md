@@ -12,4 +12,4 @@ Mehmet Şamil Kahraman 141101050
 There is no such list because if the username is not registered before, CA will create a new certificate to it and store its username and password
 <br/>
 # A list of keystore file names and their passwords
-KeyStoreCA, KeyStoreServer, KeyStoreClient their passwords: 123456
+KeyStoreCA, KeyStoreServer, KeyStoreClient. Their passwords: 123456
